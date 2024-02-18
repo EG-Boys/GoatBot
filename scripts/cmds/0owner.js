@@ -3,62 +3,90 @@ const fs = require('fs');
 const path = require('path');
 
 module.exports = {
-config: {
-  name: "owner",
-  aurthor:"Tokodori",// Convert By Goatbot Tokodori 
-   role: 0,
-  shortDescription: " ",
-  longDescription: "",
-  category: "admin",
-  guide: "{pn}"
-},
-
+  config: {
+    name: "owner",
+    aliases: [],
+    author: "kshitiz",// idea and half code stolen from mirai coded by Rickiel haha
+    version: "2.0",
+    cooldowns: 5,
+    role: 0,
+    shortDescription: {
+      en: ""
+    },
+    longDescription: {
+      en: "get bot owner info"
+    },
+    category: "owner",
+    guide: {
+      en: "{p}{n}"
+    }
+  },
   onStart: async function ({ api, event }) {
-  try {
-    const ownerInfo = {
-      name: 'Yazky Ai',
-      gender: 'Male',
-      age: 'Unknown',
-      height: 'Unknown',
-      facebookLink: 'stalk moko mwa',
-      nick: 'Yazky'
-    };
+      try {
+        const loadingMessage = "Loading owner information...";
+        await api.sendMessage(loadingMessage, event.threadID);
 
-    const bold = 'https://i.imgur.com/DDO686J.mp4'; // Replace with your Google Drive videoid link https://drive.google.com/uc?export=download&id=here put your video id
+        const ownerInfo = {
+          name: 'Light_X_Rafi',
+          gender: 'Male',
+          hobby: 'Sleeping, Overthinking',
+          relationship: 'In love ♥️',
+          facebookLink: 'https://www.facebook.com/profile.php?id=100077513002567',
+          bio: 'I will be soon but that soon never happen'
+        };
 
-    const tmpFolderPath = path.join(__dirname, 'tmp');
+        const videoUrl = 'https://drive.google.com/uc?export=download&id=13v61YN3POlmSRzL6jPTAnJZUI0Xa5nmO';
+        const tmpFolderPath = path.join(__dirname, 'tmp');
 
-    if (!fs.existsSync(tmpFolderPath)) {
-      fs.mkdirSync(tmpFolderPath);
+        if (!fs.existsSync(tmpFolderPath)) {
+          fs.mkdirSync(tmpFolderPath);
+        }
+
+        const videoResponse = await axios.get(videoUrl, { responseType: 'arraybuffer' });
+        const videoPath = path.join(tmpFolderPath, 'owner_video.mp4');
+
+        fs.writeFileSync(videoPath, Buffer.from(videoResponse.data, 'binary'));
+
+        const response = `
+          𝗼𝘄𝗻𝗲𝗿 𝗶𝗻𝗳𝗼𝗿𝗺𝗮𝘁𝗶𝗼𝗻:
+          Name: ${ownerInfo.name}
+          Gender: ${ownerInfo.gender}
+          Hobby: ${ownerInfo.hobby}
+          Relationship: ${ownerInfo.relationship}
+          Facebook: ${ownerInfo.facebookLink}
+          Status: ${ownerInfo.bio}
+        `;
+
+        await api.sendMessage({
+          body: response,
+          attachment: fs.createReadStream(videoPath)
+        }, event.threadID);
+      } catch (error) {
+        console.error('Error in owner command:', error);
+        api.sendMessage('An error occurred while processing the command.', event.threadID);
+      }
+    },
+    onChat: async function({ api, event }) {
+      try {
+        const lowerCaseBody = event.body.toLowerCase();
+        
+        if (lowerCaseBody === "owner" || lowerCaseBody.startsWith("{p}owner")) {
+          await this.onStart({ api, event });
+        }
+      } catch (error) {
+        console.error('Error in onChat function:', error);
+      }
     }
+  };
 
-    const videoResponse = await axios.get(bold, { responseType: 'arraybuffer' });
-    const videoPath = path.join(tmpFolderPath, 'owner_video.mp4');
+/*
 
-    fs.writeFileSync(videoPath, Buffer.from(videoResponse.data, 'binary'));
+To add new video 
+1. upload your video on drive
+2. after uploading change the video acces to anyone with the link 
+3. copy video link
+4. go to direct drive link convert website
+5. paste that link there and copy direct link
+6. paste that link in code 
 
-    const response = `
-Owner Information:🧾
-Name: ${ownerInfo.name}
-Gender: ${ownerInfo.gender}
-Age: ${ownerInfo.age}
-Height: ${ownerInfo.height}
-Facebook: ${ownerInfo.facebookLink}
-Nick: ${ownerInfo.nick}
-`;
-
-
-    await api.sendMessage({
-      body: response,
-      attachment: fs.createReadStream(videoPath)
-    }, event.threadID, event.messageID);
-
-    if (event.body.toLowerCase().includes('ownerinfo')) {
-      api.setMessageReaction('🚀', event.messageID, (err) => {}, true);
-    }
-  } catch (error) {
-    console.error('Error in ownerinfo command:', error);
-    return api.sendMessage('An error occurred while processing the command.', event.threadID);
-  }
-},
-};
+*/
